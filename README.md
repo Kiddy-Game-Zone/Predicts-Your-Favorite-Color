@@ -45,7 +45,7 @@ Switch themes using the dropdown in the top-right corner. Your preference is sav
 * ✨ **Cosmic Purple:** Deep space indigos and violets.
 * ☀️ **Sunny Yellow:** Bright yellows and oranges.
 * 🍬 **Candy Pink:** Sweet pinks and fuchsias.
-* 🌙 **Night Mode:** Easy-on-the-eyes dark theme.
+* 🌙 **Night Mode:** Easy-on-the-eyes dark theme,
 
 ---
 
