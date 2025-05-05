@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Favorite Color Predictor!</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/brain.js@2.0.0-beta.23/dist/browser.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* --- Base Styles & CSS Variables --- */
+        :root {
+            /* Default Theme (Playful Purple/Yellow) */
+            --bg-color: #FAF5FF; /* purple-50 */
+            --main-container-bg: #ffffff;
+            --main-container-border: #5A67D8; /* indigo-600 */
+            --main-container-shadow: #5A67D8;
+            --step-card-bg: #E9D8FD; /* purple-200 */
+            --step-card-border: #B794F4; /* purple-400 */
+            --step-card-shadow: #9F7AEA; /* purple-500 */
+            --choice-bg: #FAF089; /* yellow-200 */
+            --choice-border: #F6E05E; /* yellow-400 */
+            --choice-text: #B7791F; /* yellow-800 */
+            --choice-hover-bg: #F6E05E; /* yellow-400 */
+            --choice-selected-bg: #ECC94B; /* yellow-500 */
+            --choice-selected-border: #D69E2E; /* yellow-700 */
+            --choice-selected-text: #744210; /* yellow-900 */
+            --action-button-text: white;
+            --action-button-border: #4C51BF; /* indigo-700 */
+            --action-button-shadow: #4C51BF;
+            --action-button-hover-shadow: #434190; /* indigo-800 */
+            --action-button-active-shadow: #4C51BF;
+            --predict-button-bg: #ED64A6; /* pink-500 */
+            --predict-button-hover-bg: #D53F8C; /* pink-600 */
+            --predict-button-active-bg: #B83280; /* pink-700 */
+            --reset-button-bg: #63B3ED; /* blue-400 */
+            --reset-button-hover-bg: #4299E1; /* blue-500 */
+            --reset-button-active-bg: #3182CE; /* blue-600 */
+            --result-area-bg: #FEFCBF; /* yellow-100 */
+            --result-area-border: #F6E05E; /* yellow-400 */
+            --result-area-shadow: #ECC94B; /* yellow-500 */
+            --result-text-color: #B7791F; /* yellow-800 */
+            --predicted-color-text: #744210; /* yellow-900 */
+            --thinking-text-color: #975A16; /* yellow-800 */
+            --heading-color: #4C51BF; /* indigo-700 */
+            --subheading-color: #6B46C1; /* purple-700 */
+            --step-heading-color: #718096; /* gray-600 */
+            --label-color: #6B46C1;
+            --footer-text-color: #718096; /* gray-600 */
+            --focus-ring-color: var(--predict-button-bg);
+            --theme-selector-bg: #E9D8FD;
+            --theme-selector-border: #B794F4;
+            --theme-selector-text: #6B46C1;
+        }
+
+        /* --- Theme Definitions (Same as before) --- */
+        body[data-theme="ocean-blue"] { --bg-color: #E0F2FE; --main-container-bg: #ffffff; --main-container-border: #075985; --main-container-shadow: #075985; --step-card-bg: #CFFAFE; --step-card-border: #67E8F9; --step-card-shadow: #22D3EE; --choice-bg: #A5F3FC; --choice-border: #67E8F9; --choice-text: #155E75; --choice-hover-bg: #67E8F9; --choice-selected-bg: #22D3EE; --choice-selected-border: #0E7490; --choice-selected-text: #164E63; --action-button-border: #075985; --action-button-shadow: #075985; --action-button-hover-shadow: #075985; --action-button-active-shadow: #075985; --predict-button-bg: #38BDF8; --predict-button-hover-bg: #0EA5E9; --predict-button-active-bg: #0284C7; --reset-button-bg: #2DD4BF; --reset-button-hover-bg: #14B8A6; --reset-button-active-bg: #0D9488; --result-area-bg: #A5F3FC; --result-area-border: #67E8F9; --result-area-shadow: #22D3EE; --result-text-color: #164E63; --predicted-color-text: #083344; --thinking-text-color: #155E75; --heading-color: #0C4A6E; --subheading-color: #155E75; --step-heading-color: #0369A1; --label-color: #155E75; --footer-text-color: #0369A1; --focus-ring-color: var(--predict-button-bg); --theme-selector-bg: #A5F3FC; --theme-selector-border: #67E8F9; --theme-selector-text: #155E75; }
+        body[data-theme="forest-green"] { --bg-color: #ECFDF5; --main-container-bg: #ffffff; --main-container-border: #064E3B; --main-container-shadow: #064E3B; --step-card-bg: #D1FAE5; --step-card-border: #6EE7B7; --step-card-shadow: #34D399; --choice-bg: #A7F3D0; --choice-border: #6EE7B7; --choice-text: #065F46; --choice-hover-bg: #6EE7B7; --choice-selected-bg: #34D399; --choice-selected-border: #059669; --choice-selected-text: #064E3B; --action-button-border: #064E3B; --action-button-shadow: #064E3B; --action-button-hover-shadow: #064E3B; --action-button-active-shadow: #064E3B; --predict-button-bg: #A3E635; --predict-button-hover-bg: #84CC16; --predict-button-active-bg: #65A30D; --reset-button-bg: #4ADE80; --reset-button-hover-bg: #22C55E; --reset-button-active-bg: #16A34A; --result-area-bg: #A7F3D0; --result-area-border: #6EE7B7; --result-area-shadow: #34D399; --result-text-color: #047857; --predicted-color-text: #064E3B; --thinking-text-color: #065F46; --heading-color: #065F46; --subheading-color: #065F46; --step-heading-color: #047857; --label-color: #065F46; --footer-text-color: #047857; --focus-ring-color: var(--predict-button-bg); --theme-selector-bg: #A7F3D0; --theme-selector-border: #6EE7B7; --theme-selector-text: #065F46; }
+        body[data-theme="cosmic-purple"] { --bg-color: #F5F3FF; --main-container-bg: #1E1B4B; --main-container-border: #A78BFA; --main-container-shadow: #A78BFA; --step-card-bg: #3730A3; --step-card-border: #C4B5FD; --step-card-shadow: #A78BFA; --choice-bg: #4338CA; --choice-border: #A78BFA; --choice-text: #EEF2FF; --choice-hover-bg: #5B21B6; --choice-selected-bg: #7C3AED; --choice-selected-border: #C4B5FD; --choice-selected-text: #F5F3FF; --action-button-text: #1E1B4B; --action-button-border: #A78BFA; --action-button-shadow: #A78BFA; --action-button-hover-shadow: #A78BFA; --action-button-active-shadow: #A78BFA; --predict-button-bg: #F472B6; --predict-button-hover-bg: #EC4899; --predict-button-active-bg: #DB2777; --reset-button-bg: #A78BFA; --reset-button-hover-bg: #8B5CF6; --reset-button-active-bg: #7C3AED; --result-area-bg: #4338CA; --result-area-border: #A78BFA; --result-area-shadow: #A78BFA; --result-text-color: #C4B5FD; --predicted-color-text: #EDE9FE; --thinking-text-color: #A78BFA; --heading-color: #EDE9FE; --subheading-color: #C4B5FD; --step-heading-color: #DDD6FE; --label-color: #C4B5FD; --footer-text-color: #A78BFA; --focus-ring-color: var(--predict-button-bg); --theme-selector-bg: #4338CA; --theme-selector-border: #A78BFA; --theme-selector-text: #EEF2FF; }
+        body[data-theme="sunny-yellow"] { --bg-color: #FEF9C3; --main-container-bg: #ffffff; --main-container-border: #CA8A04; --main-container-shadow: #CA8A04; --step-card-bg: #FEF08A; --step-card-border: #FACC15; --step-card-shadow: #EAB308; --choice-bg: #FEF3C7; --choice-border: #FDE047; --choice-text: #854D0E; --choice-hover-bg: #FDE047; --choice-selected-bg: #FACC15; --choice-selected-border: #CA8A04; --choice-selected-text: #78350F; --action-button-border: #CA8A04; --action-button-shadow: #CA8A04; --action-button-hover-shadow: #CA8A04; --action-button-active-shadow: #CA8A04; --predict-button-bg: #FB923C; --predict-button-hover-bg: #F97316; --predict-button-active-bg: #EA580C; --reset-button-bg: #FACC15; --reset-button-hover-bg: #EAB308; --reset-button-active-bg: #CA8A04; --result-area-bg: #FEF3C7; --result-area-border: #FDE047; --result-area-shadow: #EAB308; --result-text-color: #854D0E; --predicted-color-text: #713F12; --thinking-text-color: #A16207; --heading-color: #B45309; --subheading-color: #A16207; --step-heading-color: #B45309; --label-color: #A16207; --footer-text-color: #B45309; --focus-ring-color: var(--predict-button-bg); --theme-selector-bg: #FEF3C7; --theme-selector-border: #FDE047; --theme-selector-text: #854D0E; }
+        body[data-theme="candy-pink"] { --bg-color: #FDF2F8; --main-container-bg: #ffffff; --main-container-border: #9D174D; --main-container-shadow: #9D174D; --step-card-bg: #FCE7F3; --step-card-border: #F9A8D4; --step-card-shadow: #F472B6; --choice-bg: #FBCFE8; --choice-border: #F9A8D4; --choice-text: #9D174D; --choice-hover-bg: #F9A8D4; --choice-selected-bg: #F472B6; --choice-selected-border: #DB2777; --choice-selected-text: #831843; --action-button-border: #9D174D; --action-button-shadow: #9D174D; --action-button-hover-shadow: #9D174D; --action-button-active-shadow: #9D174D; --predict-button-bg: #A78BFA; --predict-button-hover-bg: #8B5CF6; --predict-button-active-bg: #7C3AED; --reset-button-bg: #F472B6; --reset-button-hover-bg: #EC4899; --reset-button-active-bg: #DB2777; --result-area-bg: #FBCFE8; --result-area-border: #F9A8D4; --result-area-shadow: #F472B6; --result-text-color: #9D174D; --predicted-color-text: #831843; --thinking-text-color: #BE185D; --heading-color: #831843; --subheading-color: #BE185D; --step-heading-color: #DB2777; --label-color: #BE185D; --footer-text-color: #9D174D; --focus-ring-color: var(--predict-button-bg); --theme-selector-bg: #FBCFE8; --theme-selector-border: #F9A8D4; --theme-selector-text: #9D174D; }
+        body[data-theme="night-mode"] { --bg-color: #111827; --main-container-bg: #1F2937; --main-container-border: #6B7280; --main-container-shadow: #9CA3AF; --step-card-bg: #374151; --step-card-border: #9CA3AF; --step-card-shadow: #D1D5DB; --choice-bg: #4B5563; --choice-border: #9CA3AF; --choice-text: #F9FAFB; --choice-hover-bg: #52525b; --choice-selected-bg: #6B7280; --choice-selected-border: #D1D5DB; --choice-selected-text: #F9FAFB; --action-button-text: #111827; --action-button-border: #9CA3AF; --action-button-shadow: #9CA3AF; --action-button-hover-shadow: #D1D5DB; --action-button-active-shadow: #6B7280; --predict-button-bg: #60A5FA; --predict-button-hover-bg: #3B82F6; --predict-button-active-bg: #2563EB; --reset-button-bg: #34D399; --reset-button-hover-bg: #10B981; --reset-button-active-bg: #059669; --result-area-bg: #4B5563; --result-area-border: #9CA3AF; --result-area-shadow: #D1D5DB; --result-text-color: #ECFDF5; --predicted-color-text: #f0fdf4; --thinking-text-color: #D1D5DB; --heading-color: #F9FAFB; --subheading-color: #E5E7EB; --step-heading-color: #D1D5DB; --label-color: #E5E7EB; --footer-text-color: #9CA3AF; --focus-ring-color: var(--predict-button-bg); --theme-selector-bg: #4B5563; --theme-selector-border: #9CA3AF; --theme-selector-text: #F9FAFB; }
+
+        /* --- General Styles --- */
+        html, body { height: 100%; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            display: flex;
+            flex-direction: column;
+            margin: 0;
+            padding-top: 5rem; /* Space for theme selector */
+            position: relative;
+            transition: background-color 0.3s ease;
+            overflow-x: hidden; /* Prevent horizontal scroll */
+        }
+        main { flex-grow: 1; }
+
+        .main-container {
+            background-color: var(--main-container-bg);
+            border: 3px solid var(--main-container-border);
+            border-radius: 20px;
+            box-shadow: 8px 8px 0px var(--main-container-shadow);
+            width: 100%; /* Take full width available */
+            max-width: 48rem; /* Limit max width for large screens */
+            margin: 2rem auto 1rem auto; /* Center container with top/bottom margin */
+            padding: 1.5rem sm:p-8; /* Responsive padding */
+            text-align: center;
+            flex-shrink: 0;
+            transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        /* Step Card Styling */
+        .step-card {
+            background-color: var(--step-card-bg);
+            border: 2px solid var(--step-card-border);
+            border-radius: 16px;
+            box-shadow: 4px 4px 0px var(--step-card-shadow);
+            padding: 1.5rem;
+            margin-top: 1.5rem;
+            margin-bottom: 2rem;
+            transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+        .step-heading {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--step-heading-color);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px dashed var(--step-card-border);
+        }
+
+        /* Choice Button Styling */
+        .choices-grid {
+            display: grid;
+            /* Responsive grid: fits as many columns >= 100px as possible */
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 1rem;
+            justify-items: center;
+        }
+        .choice-button {
+            background-color: var(--choice-bg);
+            color: var(--choice-text);
+            border: 2px solid var(--choice-border);
+            border-radius: 12px;
+            padding: 0.8rem 1rem;
+            font-weight: 600;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.2s ease-out;
+            width: 100%; /* Full width within grid cell */
+            max-width: 150px; /* Max width for readability */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+            box-shadow: 3px 3px 0px var(--choice-border);
+        }
+        .choice-button:hover {
+            background-color: var(--choice-hover-bg);
+            transform: translateY(-2px);
+            box-shadow: 4px 4px 0px var(--choice-border);
+        }
+        .choice-button.selected {
+            background-color: var(--choice-selected-bg);
+            border-color: var(--choice-selected-border);
+            color: var(--choice-selected-text);
+            box-shadow: 2px 2px 0px var(--choice-selected-border);
+            transform: translateY(1px);
+        }
+        .choice-button span {
+            font-size: 2rem; /* Large emoji */
+        }
+
+        /* Action Button Styles */
+        .action-button {
+            color: var(--action-button-text); font-weight: 700; padding: 0.8rem 1.8rem; border-radius: 1rem; border: 3px solid var(--action-button-border); box-shadow: 5px 5px 0px var(--action-button-shadow); transition: all 0.15s ease-out; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; text-transform: uppercase; letter-spacing: 0.05em; font-size: 1rem; min-width: 120px; transform-style: preserve-3d;
+        }
+        .action-button:hover { box-shadow: 6px 6px 0px var(--action-button-hover-shadow); transform: translateY(-3px) translateX(-2px) translateZ(5px); }
+        .action-button:active { box-shadow: 2px 2px 0px var(--action-button-active-shadow); transform: translateY(2px) translateX(2px) translateZ(0px); }
+        .action-button:focus { outline: none; box-shadow: 5px 5px 0px var(--action-button-shadow), 0 0 0 3px var(--bg-color), 0 0 0 5px var(--focus-ring-color); }
+        .action-button:disabled { opacity: 0.6; cursor: not-allowed; box-shadow: 5px 5px 0px var(--action-button-shadow); transform: none; }
+
+        #predictBtn { background-color: var(--predict-button-bg); border-color: var(--action-button-border); box-shadow: 5px 5px 0px var(--action-button-shadow); --focus-ring-color: var(--predict-button-bg); }
+        #predictBtn:hover:not(:disabled) { background-color: var(--predict-button-hover-bg); box-shadow: 6px 6px 0px var(--action-button-hover-shadow); }
+        #predictBtn:active:not(:disabled) { background-color: var(--predict-button-active-bg); box-shadow: 2px 2px 0px var(--action-button-active-shadow); }
+
+        #resetBtn { background-color: var(--reset-button-bg); border-color: var(--action-button-border); box-shadow: 5px 5px 0px var(--action-button-shadow); --focus-ring-color: var(--reset-button-bg); }
+        #resetBtn:hover { background-color: var(--reset-button-hover-bg); box-shadow: 6px 6px 0px var(--action-button-hover-shadow); }
+        #resetBtn:active { background-color: var(--reset-button-active-bg); box-shadow: 2px 2px 0px var(--action-button-active-shadow); }
+
+
+        /* Result Area Styles */
+        #resultArea {
+            background-color: var(--result-area-bg); border: 2px dashed var(--result-area-border); border-radius: 16px; box-shadow: 4px 4px 0px var(--result-area-shadow); padding: 1.5rem; margin-top: 2rem; min-height: 150px; text-align: center; transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out, background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease; opacity: 0; transform: scale(0.9) rotate(-2deg); display: flex; flex-direction: column; align-items: center; justify-content: center;
+        }
+        #resultArea.visible { opacity: 1; transform: scale(1) rotate(0deg); animation: reveal 0.6s cubic-bezier(0.68, -0.55, 0.27, 1.55) forwards; }
+        #resultText { font-size: 1.3rem; font-weight: 600; color: var(--result-text-color); margin-bottom: 0.5rem; transition: color 0.3s ease; line-height: 1.4; }
+        #predictedColor { font-size: 2.5rem; font-weight: 700; margin: 0.5rem 0 1rem 0; padding: 0.5rem 1rem; border-radius: 8px; display: inline-block; color: var(--predicted-color-text); /* Text color set by variable */ /* Background color set dynamically */ }
+        #thinkingText { font-style: italic; color: var(--thinking-text-color); transition: color 0.3s ease; font-size: 1.1rem; margin-bottom: 1rem; }
+
+        /* Headings & Labels */
+        /* Using Tailwind classes like text-3xl, sm:text-4xl for responsive headings */
+        .main-heading { color: var(--heading-color); transition: color 0.3s ease; padding-top: 1rem; /* Default padding */ }
+        .sub-heading { color: var(--subheading-color); transition: color 0.3s ease; font-size: 1.1rem; line-height: 1.6; margin-bottom: 1.5rem; }
+
+        /* Footer Styling */
+        .page-footer { text-align: center; padding: 1rem 0; margin-top: 1rem; font-size: 0.8rem; color: var(--footer-text-color); flex-shrink: 0; line-height: 1.5; transition: color 0.3s ease; }
+        .page-footer p { margin-bottom: 0.25rem; }
+
+        /* Theme Selector Styles */
+        .theme-selector-container { position: absolute; top: 1rem; right: 1rem; z-index: 10; }
+        .theme-selector-label { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border-width: 0; }
+        #themeSelector { padding: 0.4rem 0.8rem; border-radius: 8px; border: 2px solid var(--theme-selector-border); background-color: var(--theme-selector-bg); color: var(--theme-selector-text); font-weight: 500; cursor: pointer; box-shadow: 2px 2px 0px var(--theme-selector-border); transition: all 0.2s ease; vertical-align: middle; font-size: 0.8rem; }
+        #themeSelector:focus { outline: none; box-shadow: 2px 2px 0px var(--theme-selector-border), 0 0 0 3px var(--main-container-bg), 0 0 0 5px var(--theme-selector-border); }
+
+        /* Dark Theme Adjustments */
+        body[data-theme="cosmic-purple"] .main-heading svg,
+        body[data-theme="night-mode"] .main-heading svg { color: #F687B3; /* pink-400 */ }
+        body[data-theme="cosmic-purple"] .sub-heading,
+        body[data-theme="night-mode"] .sub-heading { color: #D1D5DB; }
+        body[data-theme="cosmic-purple"] #themeSelector:focus,
+        body[data-theme="night-mode"] #themeSelector:focus { box-shadow: 2px 2px 0px var(--theme-selector-border), 0 0 0 3px var(--main-container-bg), 0 0 0 5px var(--theme-selector-border); }
+        body[data-theme="cosmic-purple"] #predictedColor,
+        body[data-theme="night-mode"] #predictedColor { color: #FFFFFF; text-shadow: 1px 1px 2px rgba(0,0,0,0.5); }
+
+
+        /* Hide class utility */
+        .hidden { display: none; }
+
+        /* Animation for result reveal */
+        @keyframes reveal { from { transform: scale(0.8) rotate(-5deg); opacity: 0; } to { transform: scale(1) rotate(0deg); opacity: 1; } }
+
+    </style>
+</head>
+<body class="p-4 md:p-6"> <div class="theme-selector-container">
+        <label for="themeSelector" class="theme-selector-label">Choose a Theme:</label>
+        <select id="themeSelector">
+            <option value="default">🎨 Default</option>
+            <option value="ocean-blue">🌊 Ocean Blue</option>
+            <option value="forest-green">🌲 Forest Green</option>
+            <option value="cosmic-purple">✨ Cosmic Purple</option>
+            <option value="sunny-yellow">☀️ Sunny Yellow</option>
+            <option value="candy-pink">🍬 Candy Pink</option>
+            <option value="night-mode">🌙 Night Mode</option>
+        </select>
+    </div>
+
+    <main>
+        <div class="main-container">
+            <h1 class="main-heading text-3xl sm:text-4xl font-bold text-center mb-4 tracking-tight flex items-center justify-center gap-3">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-9 h-9 text-pink-500">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M15.59 14.37a6 6 0 01-5.84 7.38v-4.8m5.84-2.58a14.98 14.98 0 006.16-12.12A14.98 14.98 0 009.631 8.41m5.96 5.96a14.926 14.926 0 01-5.841 2.58m-.119-8.54a6 6 0 00-7.381 5.84h4.8m2.581-5.84a14.927 14.927 0 00-2.58 5.84m2.699 2.7c-.103.021-.207.041-.311.06a15.09 15.09 0 01-2.448-2.448 14.9 14.9 0 01.06-.312m-2.24 2.39a4.493 4.493 0 00-1.757 4.306 4.493 4.493 0 004.306-1.758M16.5 9a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z" />
+                </svg>
+                 AI Color Predictor <span class="text-2xl">🎨</span>
+            </h1>
+
+            <p class="sub-heading text-center mb-8">Make a few choices below and let the AI try to guess your favorite color! ✨</p>
+
+            <div id="gameArea">
+                <div class="step-card">
+                    <h2 class="step-heading">Step 1: Pick a Shape</h2>
+                    <div class="choices-grid" id="shapeChoices">
+                        <button class="choice-button" data-value="circle"><span>🔵</span>Circle</button>
+                        <button class="choice-button" data-value="square"><span>🟪</span>Square</button>
+                        <button class="choice-button" data-value="triangle"><span>🔺</span>Triangle</button>
+                        <button class="choice-button" data-value="star"><span>⭐</span>Star</button>
+                    </div>
+                </div>
+
+                <div class="step-card">
+                    <h2 class="step-heading">Step 2: Pick a Feeling</h2>
+                    <div class="choices-grid" id="feelingChoices">
+                        <button class="choice-button" data-value="happy"><span>😄</span>Happy</button>
+                        <button class="choice-button" data-value="calm"><span>😌</span>Calm</button>
+                        <button class="choice-button" data-value="energetic"><span>⚡</span>Energetic</button>
+                        <button class="choice-button" data-value="mysterious"><span>🤫</span>Mysterious</button>
+                    </div>
+                </div>
+
+                <div class="step-card">
+                    <h2 class="step-heading">Step 3: Pick a Season</h2>
+                    <div class="choices-grid" id="seasonChoices">
+                        <button class="choice-button" data-value="spring"><span>🌸</span>Spring</button>
+                        <button class="choice-button" data-value="summer"><span>☀️</span>Summer</button>
+                        <button class="choice-button" data-value="autumn"><span>🍂</span>Autumn</button>
+                        <button class="choice-button" data-value="winter"><span>❄️</span>Winter</button>
+                    </div>
+                </div>
+
+                 <div class="step-card">
+                    <h2 class="step-heading">Step 4: Pick a Landscape</h2>
+                    <div class="choices-grid" id="landscapeChoices">
+                        <button class="choice-button" data-value="mountain"><span>⛰️</span>Mountain</button>
+                        <button class="choice-button" data-value="beach"><span>🏖️</span>Beach</button>
+                        <button class="choice-button" data-value="forest"><span>🌲</span>Forest</button>
+                        <button class="choice-button" data-value="city"><span>🏙️</span>City</button>
+                    </div>
+                </div>
+
+                <button id="predictBtn" class="action-button mt-6" disabled>🔮 Predict My Color!</button>
+            </div>
+
+            <div id="resultArea" class="hidden">
+                <p id="thinkingText">🧠 Analyzing preferences...</p>
+                <p id="resultText"></p>
+                <div id="predictedColor" class="hidden">COLOR</div>
+                <button id="resetBtn" class="action-button mt-4">Play Again? 🔁</button>
+            </div>
+
+        </div>
+    </main>
+
+    <footer class="page-footer">
+        <p>© 2025 ToolForge. All rights reserved.</p>
+        <p>Built with ❤️ by Anas.</p>
+    </footer>
+
+    <script>
+        // --- DOM Elements ---
+        const gameArea = document.getElementById('gameArea');
+        const resultArea = document.getElementById('resultArea');
+        const thinkingText = document.getElementById('thinkingText');
+        const resultText = document.getElementById('resultText');
+        const predictedColorDiv = document.getElementById('predictedColor');
+        const predictBtn = document.getElementById('predictBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const themeSelector = document.getElementById('themeSelector');
+        const choiceContainers = {
+            shape: document.getElementById('shapeChoices'),
+            feeling: document.getElementById('feelingChoices'),
+            season: document.getElementById('seasonChoices'),
+            landscape: document.getElementById('landscapeChoices')
+        };
+
+        // --- Game State ---
+        const userChoices = { shape: null, feeling: null, season: null, landscape: null };
+        const choiceValues = {
+            shape: ['circle', 'square', 'triangle', 'star'],
+            feeling: ['happy', 'calm', 'energetic', 'mysterious'],
+            season: ['spring', 'summer', 'autumn', 'winter'],
+            landscape: ['mountain', 'beach', 'forest', 'city']
+        };
+        const colors = ['Red ❤️', 'Blue 💙', 'Green 💚', 'Yellow 💛', 'Purple 💜', 'Orange 🧡', 'Pink 💖', 'Black 🖤', 'White 🤍'];
+        const colorHex = {
+            'Red ❤️': '#F56565', 'Blue 💙': '#63B3ED', 'Green 💚': '#48BB78', 'Yellow 💛': '#F6E05E', 'Purple 💜': '#B794F4', 'Orange 🧡': '#ED8936', 'Pink 💖': '#ED64A6', 'Black 🖤': '#2D3748', 'White 🤍': '#F7FAFC'
+        };
+        const colorTextHex = {
+            'Red ❤️': '#FFF', 'Blue 💙': '#FFF', 'Green 💚': '#FFF', 'Yellow 💛': '#744210', 'Purple 💜': '#FFF', 'Orange 🧡': '#FFF', 'Pink 💖': '#FFF', 'Black 🖤': '#FFF', 'White 🤍': '#2D3748'
+        };
+
+        // --- Brain.js Neural Network Setup ---
+        const net = new brain.NeuralNetwork({ activation: 'sigmoid', learningRate: 0.2 });
+        const trainingData = [
+             // Patterns favoring Red/Orange (Energetic, Summer, Beach/City)
+            { input: [1,0,0,0, 0,0,1,0, 0,1,0,0, 0,1,0,0], output: [1,0,0,0,0,0.8,0,0,0] },
+            { input: [0,1,0,0, 0,0,1,0, 0,1,0,0, 0,0,0,1], output: [0.9,0,0,0,0,1,0,0,0] },
+            { input: [0,0,0,1, 0,0,1,0, 0,1,0,0, 0,1,0,0], output: [0.8,0,0,0.1,0,1,0.1,0,0] },
+            // Patterns favoring Blue/White (Calm, Winter, Mountain)
+            { input: [0,1,0,0, 0,1,0,0, 0,0,0,1, 1,0,0,0], output: [0,1,0,0,0.1,0,0,0,0.8] },
+            { input: [1,0,0,0, 0,1,0,0, 0,0,0,1, 1,0,0,0], output: [0,0.9,0.1,0,0,0,0,0,1] },
+            { input: [0,0,1,0, 0,1,0,0, 0,0,0,1, 1,0,0,0], output: [0.1,1,0,0,0,0,0,0,0.7] },
+            // Patterns favoring Green (Calm/Happy, Spring/Autumn, Forest)
+            { input: [1,0,0,0, 1,0,0,0, 1,0,0,0, 0,0,1,0], output: [0,0.1,1,0.2,0,0,0,0,0] },
+            { input: [0,0,1,0, 0,1,0,0, 0,0,1,0, 0,0,1,0], output: [0,0,0.9,0.1,0.1,0,0,0,0] },
+            { input: [0,1,0,0, 1,0,0,0, 1,0,0,0, 0,0,1,0], output: [0,0,1,0.1,0,0,0,0,0] },
+            // Patterns favoring Yellow/Pink (Happy, Spring/Summer, Beach/City)
+            { input: [0,0,0,1, 1,0,0,0, 1,0,0,0, 0,1,0,0], output: [0,0,0.1,1,0,0,0.8,0,0] },
+            { input: [1,0,0,0, 1,0,0,0, 0,1,0,0, 0,0,0,1], output: [0.1,0,0,0.9,0,0.1,1,0,0] },
+            { input: [0,0,1,0, 1,0,0,0, 1,0,0,0, 0,0,0,1], output: [0,0,0,0.8,0,0,1,0,0] },
+            // Patterns favoring Purple/Black (Mysterious, Autumn/Winter, Mountain/City)
+            { input: [0,0,1,0, 0,0,0,1, 0,0,1,0, 1,0,0,0], output: [0,0.1,0,0,1,0,0,0.7,0] },
+            { input: [0,1,0,0, 0,0,0,1, 0,0,0,1, 0,0,0,1], output: [0,0,0,0,0.9,0,0,1,0.1] },
+            { input: [0,0,0,1, 0,0,0,1, 0,0,1,0, 0,0,0,1], output: [0,0,0,0,1,0,0,0.9,0] },
+            // Diverse examples
+            { input: [0,0,0,1, 0,1,0,0, 0,1,0,0, 0,0,1,0], output: [0,0.2,0.8,0.5,0,0,0,0,0] },
+            { input: [1,0,0,0, 0,0,1,0, 0,0,1,0, 1,0,0,0], output: [0.6,0.1,0,0,0.1,0.7,0,0,0] },
+            { input: [0,1,0,0, 1,0,0,0, 0,0,0,1, 0,1,0,0], output: [0.1,0.6,0,0.1,0,0,0.5,0,0.4] },
+        ];
+
+        let networkReady = false;
+        net.trainAsync(trainingData, { iterations: 1000, log: false })
+            .then(() => {
+                networkReady = true;
+                console.log("Neural network trained!");
+                checkIfReadyToPredict();
+            }).catch(err => console.error("Network training failed:", err));
+
+        // --- Functions ---
+        function createOneHot(category, value) {
+            const values = choiceValues[category];
+            const vector = Array(values.length).fill(0);
+            const index = values.indexOf(value);
+            if (index !== -1) vector[index] = 1;
+            return vector;
+        }
+
+        function createInputVector() {
+            const shapeVector = createOneHot('shape', userChoices.shape);
+            const feelingVector = createOneHot('feeling', userChoices.feeling);
+            const seasonVector = createOneHot('season', userChoices.season);
+            const landscapeVector = createOneHot('landscape', userChoices.landscape);
+            return [...shapeVector, ...feelingVector, ...seasonVector, ...landscapeVector];
+        }
+
+        function getPredictedColor(outputVector) {
+            let maxProbability = -1;
+            let predictedIndex = -1;
+            outputVector.forEach((probability, index) => {
+                if (probability > maxProbability) {
+                    maxProbability = probability;
+                    predictedIndex = index;
+                }
+            });
+            return colors[predictedIndex] || colors[Math.floor(Math.random() * colors.length)]; // Fallback
+        }
+
+        function checkIfReadyToPredict() {
+            const allChosen = Object.values(userChoices).every(choice => choice !== null);
+            predictBtn.disabled = !allChosen || !networkReady;
+        }
+
+        function handleChoiceClick(event) {
+            const button = event.target.closest('.choice-button');
+            if (!button) return;
+            const category = button.parentElement.id.replace('Choices', '');
+            const value = button.dataset.value;
+            userChoices[category] = value;
+            const buttonsInCategory = choiceContainers[category].querySelectorAll('.choice-button');
+            buttonsInCategory.forEach(btn => {
+                btn.classList.remove('selected');
+                if (btn.dataset.value === value) btn.classList.add('selected');
+            });
+            checkIfReadyToPredict();
+        }
+
+        function runPrediction() {
+            if (!networkReady || predictBtn.disabled) return;
+            gameArea.classList.add('hidden');
+            resultArea.classList.remove('hidden');
+            resultText.textContent = '';
+            predictedColorDiv.classList.add('hidden');
+            thinkingText.textContent = '🧠 Analyzing preferences...';
+            thinkingText.style.display = 'block';
+            resultArea.classList.remove('visible');
+
+            setTimeout(() => thinkingText.textContent = '🎨 Consulting the color spectrum...', 1000);
+
+            setTimeout(() => {
+                const inputVector = createInputVector();
+                const outputVector = net.run(inputVector);
+                const prediction = getPredictedColor(outputVector);
+                const bgColor = colorHex[prediction] || '#cccccc';
+                const textColor = colorTextHex[prediction] || '#000000';
+
+                thinkingText.style.display = 'none';
+                resultText.textContent = "My prediction for your favorite color is...";
+                predictedColorDiv.textContent = prediction;
+                predictedColorDiv.style.backgroundColor = bgColor;
+                predictedColorDiv.style.color = textColor;
+                predictedColorDiv.classList.remove('hidden');
+                resultArea.classList.add('visible');
+            }, 2500);
+        }
+
+        function resetGame() {
+            Object.keys(userChoices).forEach(category => {
+                userChoices[category] = null;
+                const buttons = choiceContainers[category].querySelectorAll('.choice-button');
+                buttons.forEach(btn => btn.classList.remove('selected'));
+            });
+            predictBtn.disabled = true;
+            resultArea.classList.add('hidden');
+            resultArea.classList.remove('visible');
+            predictedColorDiv.classList.add('hidden');
+            gameArea.classList.remove('hidden');
+        }
+
+        // --- Theme Switching Logic (With localStorage) ---
+        function applyTheme(themeName) {
+            document.body.dataset.theme = themeName;
+            try { localStorage.setItem('aiColorPredictorTheme', themeName); }
+            catch (e) { console.warn("Could not save theme preference to localStorage:", e); }
+        }
+
+        function loadSavedTheme() {
+            let savedTheme = 'default';
+            try { savedTheme = localStorage.getItem('aiColorPredictorTheme') || 'default'; }
+            catch (e) { console.warn("Could not load theme preference from localStorage:", e); }
+            themeSelector.value = savedTheme;
+            applyTheme(savedTheme);
+        }
+
+        themeSelector.addEventListener('change', (event) => applyTheme(event.target.value));
+
+        // --- Event Listeners ---
+        Object.values(choiceContainers).forEach(container => container.addEventListener('click', handleChoiceClick));
+        predictBtn.addEventListener('click', runPrediction);
+        resetBtn.addEventListener('click', resetGame);
+
+        // --- Initial Load ---
+        loadSavedTheme();
+        resetGame();
+
+    </script>
+
+</body>
+</html>
